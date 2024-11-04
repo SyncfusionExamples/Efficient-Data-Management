@@ -1,0 +1,230 @@
+﻿@page "/"
+
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.TreeGrid
+@using Syncfusion.Blazor.Spinner
+@inject IJSRuntime Runtime;
+@using Microsoft.JSInterop
+@using System.Diagnostics
+<div class="col-lg-12 control-section">
+    <div class="content-wrapper">
+        <div class="row">
+            <SfTreeGrid @ref="tree" DataSource="@TreeGridData" Width="900" AllowSelection=true AllowRowDragAndDrop="true" TreeColumnIndex="0" IdMapping="Id" ParentIdMapping="ParentId" Height="400">
+                <TreeGridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></TreeGridSelectionSettings>
+                <TreeGridEvents DataBound="DataBound" OnLoad="OnLoadedHandler" TValue="Member"></TreeGridEvents>
+                <TreeGridTemplates>
+                    <DetailTemplate Context="Parent">
+                        @{
+                            var ParentMember = (Parent as Member);
+                            var ID = ParentMember.Id;
+                            target = "DestGrid";
+                            GridID = target + ID;
+                            <SfGrid ID="@GridID" Width="100%" DataSource="@ParentMember.Documents" AllowSelection="true" AllowRowDragAndDrop=true>
+                                <GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
+                                <GridRowDropSettings TargetID="@target"></GridRowDropSettings>
+                                <GridEvents RowDragStarting="DragStarting" TValue="Document"></GridEvents>
+                                <GridColumns>
+                                    <GridColumn Field=@nameof(Document.Id) IsPrimaryKey=true HeaderText="Document ID" TextAlign="Syncfusion.Blazor.Grids.TextAlign.Left" Width="50"></GridColumn>
+                                    <GridColumn Field=@nameof(Document.Title) HeaderText="Title" TextAlign="Syncfusion.Blazor.Grids.TextAlign.Center" Width="50"></GridColumn>
+                                    <GridColumn Field=@nameof(Document.MeetingMaterial) HeaderText="Meeting Material" TextAlign="Syncfusion.Blazor.Grids.TextAlign.Center" Width="50"></GridColumn>
+                                </GridColumns>
+                            </SfGrid>
+                        }
+                    </DetailTemplate>
+                </TreeGridTemplates>
+                <TreeGridColumns>
+                    <TreeGridColumn Field="Id" IsPrimaryKey=true TextAlign="Syncfusion.Blazor.Grids.TextAlign.Left" HeaderText="Description" Width="100"></TreeGridColumn>
+                    <TreeGridColumn Field="FirstName" TextAlign="Syncfusion.Blazor.Grids.TextAlign.Left" Width="100"  HeaderText="First Name"></TreeGridColumn>
+                    <TreeGridColumn Field="LastName" TextAlign="Syncfusion.Blazor.Grids.TextAlign.Left" Width="100" HeaderText="Last Name"></TreeGridColumn>
+                </TreeGridColumns>
+            </SfTreeGrid>
+        </div>
+    </div>
+</div>
+<style>
+
+    /* Over-riding the drag border class of tree grid to show borders. */
+    .e-treegrid .e-gridcontent tr.e-detailrow td.e-rowcell.e-dragborder, .e-treegrid .e-gridcontent tr.e-detailrow td.e-rowdragdrop.e-dragborder {
+        box-shadow: 0 2px 00 rgba(var(--color-sf-primary)) !important;
+    }
+
+    .e-treegrid .e-gridcontent td.e-rowdragdrop.e-droptop {
+        border-top-color: rgba(var(--color-sf-primary));
+        border-width: 2px 0 0
+    }
+
+    .e-treegrid .e-gridcontent .e-lastrow-dragborder {
+        height: 2px !important;
+    }
+
+</style>
+
+
+
+@code {
+    public SfTreeGrid<Member> tree;
+    int Id;
+    string GridID = "";
+    string target = "";
+    private List<Member>? TreeGridData { get; set; }
+    Member memberInstance = new Member();
+    protected override async Task OnInitializedAsync()
+    {
+        TreeGridData = await memberInstance.GetMemberData();
+    }
+
+    public async Task OnLoadedHandler(object args)
+    {
+        await tree.ShowSpinnerAsync();
+    }
+
+    public async Task DataBound(object args)
+    {
+        await tree.HideSpinnerAsync();
+    }
+
+    public async Task DragStarting(RowDragStartingEventArgs<Document> args)
+    {
+        Id = args.Data[0].Id;
+        var memberWithMatchingDocument = TreeGridData?.FirstOrDefault(member =>
+            member.Documents != null && member.Documents.Any(doc => doc.Id == Id));
+
+        if (memberWithMatchingDocument != null)
+        {
+            var sourceElementID = "DestGrid" + memberWithMatchingDocument.Id;
+            await Runtime.InvokeVoidAsync("cloneelement", sourceElementID);
+        }
+    }
+
+
+
+    public class Member
+    {
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public int Id { get; set; }
+        public int Level { get; set; }
+        public int? ParentId { get; set; }
+        public List<Document>? Documents { get; set; }
+        public bool IsExpanded { get; set; }
+
+        public async Task<List<Member>> GetMemberData()
+        {
+            var listM = new List<Member>();
+            int count = 0;
+
+            for (int i = 0; i < 5; i++)
+            {
+                var defaultId = count = ++count;
+                var childId = count = ++count;
+                var grandChildId = count = ++count;
+                listM.Add(new Member
+                    {
+                        FirstName = "Tom",
+                        LastName = "Cruise",
+                        Id = defaultId,
+                        ParentId = null,
+                        Level = 0,
+                        IsExpanded = false,
+                        Documents = new List<Document>
+                        {
+                            new Document
+                            {
+                                Id = defaultId - childId -grandChildId+200,
+                                Title="First Document",
+                                MeetingMaterial = "1 folder",
+                                Priority = "High"
+                            }
+                        }
+                    });
+
+                listM.Add(new Member
+                    {
+                        FirstName = "Neeta",
+                        LastName = "Lulla",
+                        Id = childId,
+                        Level = 1,
+                        ParentId = defaultId,
+                        IsExpanded = false,
+                        Documents = new List<Document>
+                        {
+                            new Document
+                            {
+                                Id = defaultId+childId +201,
+                                Title="First Document",
+                                MeetingMaterial="2 folder",
+                                Priority = "High"
+                            },
+
+                            new Document
+                            {
+                                Id = defaultId+childId +202,
+                                Title="First Document",
+                                MeetingMaterial="3 folder",
+                                Priority = "High"
+                            },
+                            new Document
+                            {
+                                Id = defaultId + childId+203,
+                                Title="First Document",
+                                MeetingMaterial="21 folder",
+                                Priority = "Low"
+                            }
+
+                        }
+                    });
+
+                listM.Add(new Member
+                    {
+                        FirstName = "Neeta",
+                        LastName = "Lulla",
+                        Id = grandChildId,
+                        IsExpanded = true,
+                        Level = 2,
+                        ParentId = childId,
+                        Documents = new List<Document>
+                        {
+                            new Document
+                            {
+                                Id = defaultId + childId+204,
+                                Title="First Document",
+                                MeetingMaterial="2 folder",
+                                Priority = "Low"
+                            },
+
+                            new Document
+                            {
+                                Id = defaultId + childId+205,
+                                Title="First Document",
+                                MeetingMaterial="3 folder",
+                                Priority = "Normal"
+                            },
+
+                            new Document
+                            {
+                                Id = defaultId + childId+206,
+                                Title="First Document",
+                                MeetingMaterial="21 folder",
+                                Priority = "Critical"
+                            }
+                        }
+                    });
+            }
+
+
+
+            await Task.CompletedTask;
+            return listM;
+        }
+    }
+
+    public class Document
+    {
+        public int Id { get; set; }
+        public string? Title { get; set; }
+        public string? MeetingMaterial { get; set; }
+        public string? Priority { get; set; }
+        public string? Action { get; set; }
+    }
+}

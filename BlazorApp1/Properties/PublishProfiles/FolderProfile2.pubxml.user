@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121.
+-->
+<Project>
+  <PropertyGroup>
+    <_PublishTargetUrl>D:\Blazor with hotfix\BlazorApp1\BlazorApp1\bin\Release\net7.0\publishtime\</_PublishTargetUrl>
+    <History>True|2023-10-27T08:56:35.7046174Z;</History>
+    <LastFailureDetails />
+  </PropertyGroup>
+</Project>

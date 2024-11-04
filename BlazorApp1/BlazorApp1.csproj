@@ -1,0 +1,49 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="wwwroot\css\open-iconic\**" />
+    <Content Remove="wwwroot\css\open-iconic\**" />
+    <EmbeddedResource Remove="wwwroot\css\open-iconic\**" />
+    <None Remove="wwwroot\css\open-iconic\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Pages\Collapse.razor" />
+    <Content Remove="Pages\Component.razor" />
+    <Content Remove="Pages\Component1.razor" />
+    <Content Remove="Pages\Component2.razor" />
+    <Content Remove="Pages\Component3.razor" />
+    <Content Remove="Pages\Component4.razor" />
+    <Content Remove="Pages\Component5.razor" />
+    <Content Remove="wwwroot\bootstrap5.css" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\Collapse.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\Collapse.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\css\bootstrap\bootstrap.min.css.map" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Graph" Version="5.44.0" />
+    <PackageReference Include="NumericWordsConversion" Version="2.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+	  <PackageReference Include="Blazored.LocalStorage" Version="4.2.0" />
+	  <PackageReference Include="Syncfusion.Blazor" Version="25.1.41" />
+  </ItemGroup>
+
+</Project>
